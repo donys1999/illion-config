@@ -1,0 +1,209 @@
+# illion 配置文件 更新时间 2025/1/12
+
+# proxies-anchor
+pr: &pr
+  type: http
+  interval: 172800
+  health-check:
+    enable: true
+    url: http://cp.cloudflare.com/generate_204
+    interval: 600
+p: &p
+  type: select
+  url: http://cp.cloudflare.com/generate_204
+  proxies:
+    - 香港节点
+    - 台湾节点
+    - 日本节点
+    - 狮城节点
+    - 美国节点
+    - DIRECT
+pg: &pg
+  type: select
+  url: http://cp.cloudflare.com/generate_204
+  include-all-providers: true
+  interval: 600
+  lazy: true
+
+proxy-providers:
+  Mercury:
+    <<: *pr
+    url: 
+    path: ./profiles/proxies/Mercury.yaml
+  Venus:
+    <<: *pr
+    url: 
+    path: ./profiles/proxies/Venus.yaml
+
+ipv6: true
+allow-lan: true
+mixed-port: 7890
+unified-delay: false
+tcp-concurrent: true
+keep-alive-interval: 30
+global-client-fingerprint: edge
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+geodata-mode: true
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat
+  geosite: https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat
+  mmdb: https://cdn.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/Country.mmdb
+  asn: https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - any:53
+  auto-route: true
+  auto-detect-interface: true
+  device: Meta
+  strict-route: false
+  mtu: 9000
+
+dns:
+  enable: true
+  listen: :1053
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+  nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+    - 119.29.29.29
+
+proxy-groups:
+  - name: Proxy
+    <<: *pg
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png
+  - name: Bypass
+    <<: *p
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Bypass.png
+  - name: Netflix
+    <<: *p
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
+  - name: Game
+    <<: *p
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png
+  - name: 香港节点
+    <<: *pg
+    filter: "香港|HK"
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png
+  - name: 台湾节点
+    <<: *pg
+    filter: "台|TW"
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png
+  - name: 日本节点
+    <<: *pg
+    filter: "日|JP"
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png
+  - name: 狮城节点
+    <<: *pg
+    filter: "新|SG"
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png
+  - name: 美国节点
+    <<: *pg
+    filter: "美|US"
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png
+
+rules:
+  - GEOIP,lan,DIRECT,no-resolve
+  - DOMAIN-KEYWORD,www.google.,香港节点
+  - GEOSITE,steam@cn,DIRECT
+  - DOMAIN-SUFFIX,steamserver.net,DIRECT
+  - DOMAIN-SUFFIX,iesdouyin.com,DIRECT
+  - DOMAIN-SUFFIX,douyin.com,DIRECT
+  - DOMAIN-SUFFIX,amemv.com,DIRECT
+  - DOMAIN-SUFFIX,api.amemv.com,DIRECT
+  - DOMAIN-SUFFIX,log.snssdk.com,DIRECT
+  - DOMAIN-SUFFIX,log.douyin.com,DIRECT
+  - DOMAIN-SUFFIX,ib.snssdk.com,DIRECT
+  - DOMAIN-SUFFIX,ib.douyin.com,DIRECT
+  - DOMAIN-SUFFIX,ib-api.amemv.com,DIRECT
+  - DOMAIN-SUFFIX,ib-api.snssdk.com,DIRECT
+  - DOMAIN-SUFFIX,douyincdn.com,DIRECT
+  - DOMAIN-SUFFIX,amemv.com,DIRECT
+  - DOMAIN-SUFFIX,bdimg.com,DIRECT
+  - IP-CIDR,110.42.0.0/16,DIRECT
+  - IP-CIDR,47.103.0.0/16,DIRECT
+  - RULE-SET,EA,DIRECT
+  - RULE-SET,apple,DIRECT
+  - RULE-SET,ins,香港节点
+  - RULE-SET,Blizzard,DIRECT
+  - RULE-SET,douyin,DIRECT
+  - GEOSITE,Notion,DIRECT
+  - GEOSITE,openai,美国节点
+  - GEOSITE,spotify,DIRECT
+  - GEOSITE,telegram,狮城节点
+  - GEOSITE,twitter,美国节点
+  - GEOSITE,netflix,Netflix
+  - GEOSITE,apple@cn,DIRECT
+  - GEOSITE,category-games@cn,DIRECT
+  - GEOSITE,category-games,Game
+  - GEOSITE,microsoft@cn,DIRECT
+  - GEOSITE,cn,DIRECT
+  - GEOSITE,geolocation-!cn,Bypass
+  - GEOIP,google,Bypass
+  - GEOIP,telegram,狮城节点
+  - GEOIP,twitter,美国节点
+  - GEOIP,cn,DIRECT
+  - MATCH,Bypass
+
+rule-providers:
+  EA:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EA/EA.yaml
+    format: yaml
+    path: ./rule-providers/EA.list
+    type: http
+    behavior: classical
+    interval: 86400
+  apple:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
+    format: yaml
+    path: ./rule-providers/apple.list
+    type: http
+    behavior: classical
+    interval: 86400
+  ins:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram.yaml
+    format: yaml
+    path: ./rule-providers/ins.list
+    type: http
+    behavior: classical
+    interval: 86400
+  Blizzard:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Blizzard/Blizzard.yaml
+    format: yaml
+    path: ./rule-providers/Blizzard.list
+    type: http
+    behavior: classical
+    interval: 86400
+  douyin:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/DouYin/DouYin.yaml
+    format: yaml
+    path: ./rule-providers/douyin.list
+    type: http
+    behavior: classical
+    interval: 86400
